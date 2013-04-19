@@ -8,6 +8,14 @@
 
 $schema = new \Doctrine\DBAL\Schema\Schema();
 
+$admins = $schema->createTable('admin');
+$admins->addColumn('id', 'integer', array('unsigned' => true, 'autoincrement' => true));
+$admins->addColumn('login', 'string', array('length' => 55));
+$admins->addColumn('password', 'string', array('length' => 55));
+$admins->addColumn('email', 'string', array('length' => 55));
+$admins->addUniqueIndex(array('email'));
+$admins->setPrimaryKey(array('id'));
+
 $users = $schema->createTable('users');
 $users->addColumn('id', 'integer', array('unsigned' => true, 'autoincrement' => true));
 $users->addColumn('name', 'string', array('length' => 55));

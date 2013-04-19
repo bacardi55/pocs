@@ -9,9 +9,14 @@ use Silex\Provider\TranslationServiceProvider;
 use Silex\Provider\TwigServiceProvider;
 use Silex\Provider\UrlGeneratorServiceProvider;
 use Silex\Provider\ValidatorServiceProvider;
+use Silex\Provider;
+
 use SilexAssetic\AsseticServiceProvider;
+
 use Symfony\Component\Security\Core\Encoder\PlaintextPasswordEncoder;
 use Symfony\Component\Translation\Loader\YamlFileLoader;
+
+use Pocs\Provider\PocsUserProvider;
 
 $app->register(new HttpCacheServiceProvider());
 
@@ -22,8 +27,12 @@ $app->register(new UrlGeneratorServiceProvider());
 
 $app->register(new SecurityServiceProvider(), array(
     'security.firewalls' => array(
+        'api' => array(
+            'pattern' => '^/api',
+            'security' => false,
+        ),
         'admin' => array(
-            'pattern' => '^/',
+            'pattern' => '^.*$',
             'form'    => array(
                 'login_path'         => '/login',
                 'username_parameter' => 'form[username]',
@@ -31,7 +40,9 @@ $app->register(new SecurityServiceProvider(), array(
             ),
             'logout'    => true,
             'anonymous' => true,
-            'users'     => $app['security.users'],
+            'users'     => $app->share(function () use ($app) {
+                return new PocsUserProvider($app['db']);
+            }),
         ),
     ),
 ));
@@ -104,5 +115,12 @@ if (isset($app['assetic.enabled']) && $app['assetic.enabled']) {
 }
 
 $app->register(new Silex\Provider\DoctrineServiceProvider());
+
+// Dependency of webprofiler.
+$app->register(new Provider\ServiceControllerServiceProvider());
+$app->register($p = new Provider\WebProfilerServiceProvider(), array(
+    'profiler.cache_dir' => __DIR__.'/../resources/cache/profiler',
+));
+$app->mount('/_profiler', $p);
 
 return $app;

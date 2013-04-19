@@ -40,4 +40,4 @@ $app['db.options'] = array(
 );
 
 // User
-$app['security.users'] = array('username' => array('ROLE_USER', 'password'));
+//$app['security.users'] = array('username' => array('ROLE_USER', 'password'));
