@@ -5,3 +5,4 @@ web/assets/*
 
 composer.lock
 *.swp
+.fuse_*
