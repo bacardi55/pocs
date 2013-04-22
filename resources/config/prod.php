@@ -1,25 +1,25 @@
 <?php
 
-// Local
+// Local.
 $app['locale'] = 'fr';
 $app['session.default_locale'] = $app['locale'];
 $app['translator.messages'] = array(
     'fr' => __DIR__.'/../resources/locales/fr.yml',
 );
 
-// Cache
+// Cache.
 $app['cache.path'] = __DIR__ . '/../cache';
 
-// Http cache
+// Http cache.
 $app['http_cache.cache_dir'] = $app['cache.path'] . '/http';
 
-// Twig cache
+// Twig cache.
 $app['twig.options.cache'] = $app['cache.path'] . '/twig';
 
-// Assetic
+// Assetic.
 $app['assetic.enabled']              = true;
 $app['assetic.path_to_cache']        = $app['cache.path'] . '/assetic' ;
-$app['assetic.path_to_web']          = __DIR__ . '/../../web/assets';
+$app['assetic.path_to_web']          = __DIR__ . '/../../web';
 $app['assetic.input.path_to_assets'] = __DIR__ . '/../assets';
 
 $app['assetic.input.path_to_css']       = $app['assetic.input.path_to_assets'] . '/less/style.less';
@@ -30,7 +30,7 @@ $app['assetic.input.path_to_js']        = array(
 );
 $app['assetic.output.path_to_js']       = 'js/scripts.js';
 
-// Doctrine (db)
+// Doctrine (db).
 $app['db.options'] = array(
     'driver'   => 'pdo_mysql',
     'host'     => 'localhost',
@@ -39,5 +39,5 @@ $app['db.options'] = array(
     'password' => 'pocs',
 );
 
-// User
-//$app['security.users'] = array('username' => array('ROLE_USER', 'password'));
+$app['pocs.secretkey'] = "%my secret pocs key%";
+

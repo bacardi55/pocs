@@ -2,5 +2,20 @@
 {% set active = 'homepage' %}
 
 {% block content %}
-    <h1>Hello</h1>
+    <h1>Configured frontends:</h1>
+    <ul>
+        {% for frontend in frontends %}
+            <li>
+                {{ frontend.uniqueName }}
+                (<a href="{{ frontend.baseUrl }}">{{ frontend.baseUrl }}</a>)
+                <a href="{{ path('remove_frontend', {'id': frontend.id}) }}">
+                    <i class="icon-trash"></i>
+                </a>
+                <br />
+                API key: {{ frontend.apikey }}
+            </li>
+        {% else %}
+            <li>{{ 'No frontend linked yet'|trans }}</li>
+        {% endfor %}
+    </ul>
 {% endblock %}

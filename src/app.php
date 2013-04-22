@@ -4,6 +4,7 @@ use Silex\Provider\FormServiceProvider;
 use Silex\Provider\HttpCacheServiceProvider;
 use Silex\Provider\MonologServiceProvider;
 use Silex\Provider\SecurityServiceProvider;
+use Silex\Provider\RememberMeServiceProvider;
 use Silex\Provider\SessionServiceProvider;
 use Silex\Provider\TranslationServiceProvider;
 use Silex\Provider\TwigServiceProvider;
@@ -13,10 +14,12 @@ use Silex\Provider;
 
 use SilexAssetic\AsseticServiceProvider;
 
-use Symfony\Component\Security\Core\Encoder\PlaintextPasswordEncoder;
+use Symfony\Component\Security\Core\Encoder\Pbkdf2PasswordEncoder;
 use Symfony\Component\Translation\Loader\YamlFileLoader;
 
-use Pocs\Provider\PocsUserProvider;
+use Pocs\Provider\PocsAdminsProvider;
+use Pocs\Provider\PocsCommentsProvider;
+use Pocs\Provider\PocsFrontendsProvider;
 
 $app->register(new HttpCacheServiceProvider());
 
@@ -24,6 +27,15 @@ $app->register(new SessionServiceProvider());
 $app->register(new ValidatorServiceProvider());
 $app->register(new FormServiceProvider());
 $app->register(new UrlGeneratorServiceProvider());
+$app->register(new Silex\Provider\DoctrineServiceProvider());
+
+$app['security.encoder.digest'] = $app->share(function ($app) {
+    return new Pbkdf2PasswordEncoder();
+});
+
+$app['pocs.admins.provider'] = $app->share(function () use ($app) {
+    return new PocsAdminsProvider($app['db']);
+});
 
 $app->register(new SecurityServiceProvider(), array(
     'security.firewalls' => array(
@@ -31,26 +43,30 @@ $app->register(new SecurityServiceProvider(), array(
             'pattern' => '^/api',
             'security' => false,
         ),
+        'install' => array(
+            'pattern' => '^/install',
+            'security' => true,
+            'anonymous' => true,
+        ),
+        'login' => array(
+            'pattern' => '^/login$',
+            'secured' => false,
+            'anonymous' => true,
+        ),
         'admin' => array(
             'pattern' => '^.*$',
             'form'    => array(
-                'login_path'         => '/login',
-                'username_parameter' => 'form[username]',
+                'login_path' => '/login',
+                'check_path' => '/admin/login_check',
+                'username_parameter' => 'form[email]',
                 'password_parameter' => 'form[password]',
             ),
             'logout'    => true,
             'anonymous' => true,
-            'users'     => $app->share(function () use ($app) {
-                return new PocsUserProvider($app['db']);
-            }),
+            'users'     => $app['pocs.admins.provider'],
         ),
     ),
 ));
-
-$app['security.encoder.digest'] = $app->share(function ($app) {
-    return new PlaintextPasswordEncoder();
-});
-
 $app->register(new TranslationServiceProvider());
 $app['translator'] = $app->share($app->extend('translator', function($translator, $app) {
     $translator->addLoader('yaml', new YamlFileLoader());
@@ -113,8 +129,6 @@ if (isset($app['assetic.enabled']) && $app['assetic.enabled']) {
     );
 
 }
-
-$app->register(new Silex\Provider\DoctrineServiceProvider());
 
 // Dependency of webprofiler.
 $app->register(new Provider\ServiceControllerServiceProvider());
