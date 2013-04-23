@@ -63,16 +63,12 @@ class Web extends Controller
      */
     public function index()
     {
-        /*
-        $this->app['session']->getFlashBag()->add('warning', 'Warning flash message');
-        $this->app['session']->getFlashBag()->add('info', 'Info flash message');
-        $this->app['session']->getFlashBag()->add('success', 'Success flash message');
-        $this->app['session']->getFlashBag()->add('error', 'Error flash message');
-         */
-        $frontendsProvider = $this->app['pocs.frontends.provider'];
+        $frontends = $this->app['db']->executeQuery(
+            'SELECT id, base_url, name, apikey FROM frontends'
+        );
 
         return $this->app['twig']->render('index.html.twig', array(
-          'frontends' => $frontendsProvider->getAll()
+          'frontends' => $frontends
         ));
     }
 

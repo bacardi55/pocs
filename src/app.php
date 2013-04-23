@@ -18,8 +18,6 @@ use Symfony\Component\Security\Core\Encoder\Pbkdf2PasswordEncoder;
 use Symfony\Component\Translation\Loader\YamlFileLoader;
 
 use Pocs\Provider\PocsAdminsProvider;
-use Pocs\Provider\PocsCommentsProvider;
-use Pocs\Provider\PocsFrontendsProvider;
 
 $app->register(new HttpCacheServiceProvider());
 
