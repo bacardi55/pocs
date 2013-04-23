@@ -54,10 +54,11 @@ class Api extends Controller
                 'The Api Key doesn\'t match the referer url'
             );
         }
+        if (preg_match('#\#/$#', $path)) {
+            $path = substr($path, 0, -2);
+        }
         if (!$path) {
             $path = '/';
-        } elseif (preg_match('#\#/$#', $path)) {
-            $path = substr($path, 0, -2);
         }
 
         $stmt = $this->app['db']->executeQuery(
@@ -89,7 +90,7 @@ class Api extends Controller
         $response = new JsonResponse();
         $response->headers->set('Access-Control-Allow-Origin', '*');
         $response->setData(array(
-          'status' => 'success', 'message' => 'Comment added successfully')
+            'status' => 'success', 'message' => 'Comment added successfully')
         );
         return $response;
     }
@@ -150,10 +151,8 @@ class Api extends Controller
                         'comment' => $comments[$i]['comment'],
                         'user' => $comments[$i]['user_name'],
                         'date' => $comments[$i]['date'],
-                        /*
                         'gravatar' => 'http://www.gravatar.com/avatar/'
                           . md5($comments[$i]['user_email']),
-                        */
                     );
                 }
             }
