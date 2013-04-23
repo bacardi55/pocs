@@ -1,0 +1,14 @@
+{% extends 'layout.html.twig' %}
+
+{% block content %}
+  <div>
+      <h2>Urls for the « {{ frontend.name }} » frontend</h2>
+      <ul>
+        {% for url in urls %}
+          <li>{{ url.url }}</li>
+        {% else %}
+          <li>No url / comments yet for this frontend.</li>
+        {% endfor %}
+      </ul>
+  </div>
+{% endblock %}
