@@ -11,6 +11,9 @@ use Doctrine\DBAL\DBALException;
 
 use Pocs\Controller\Controller;
 use Pocs\Form\PocsForm;
+use Pocs\Entity\Frontend;
+use Pocs\Entity\Url;
+use Pocs\Entity\Comment;
 
 class Web extends Controller
 {
@@ -20,16 +23,23 @@ class Web extends Controller
     public function initialize()
     {
         $this->app->before(array($this, 'before'));
+
         $this->app->get('/', array($this, 'home'));
+
         $this->app->get('/admin/', array($this, 'index'))->bind('homepage');
+
         $this->app->get('/login', array($this, 'login'))->bind('login');
+
         $this->app->match('/install', array($this, 'install'))
             ->method('GET|POST')->bind('install');
+
         $this->app->match('/admin/frontend/add', array($this, 'addFrontend'))
             ->method('GET|POST')
             ->bind('create_frontend');
+
         $this->app->get('admin/frontend/view/{id}', array($this, 'viewFrontend'))
             ->bind('view_frontend');
+
         $this->app->get('admin/frontend/{id}/remove', array($this, 'removeFrontend'))
             ->bind('remove_frontend');
     }
@@ -47,7 +57,13 @@ class Web extends Controller
         }
     }
 
-    public function home() {
+    /**
+     * Home function.
+     *
+     * Redirect to the index or to the login page.
+     */
+    public function home()
+    {
         if ($this->app['security']->isGranted('ROLE_ADMIN')) {
             return $this->app->redirect($this->app['url_generator']
                 ->generate('homepage'));
@@ -57,15 +73,17 @@ class Web extends Controller
         }
     }
 
-
     /**
      * Index page.
+     *
+     * Display all frontends.
      */
     public function index()
     {
-        $frontends = $this->app['db']->executeQuery(
-            'SELECT id, base_url, name, apikey FROM frontends'
+        $stmt = $this->app['db']->executeQuery(
+            'SELECT id, base_url, name, apikey FROM frontends ORDER BY id'
         );
+        $frontends = $stmt->fetchAll(\PDO::FETCH_CLASS, get_class(new Frontend));
 
         return $this->app['twig']->render('index.html.twig', array(
           'frontends' => $frontends
@@ -101,11 +119,15 @@ class Web extends Controller
                 if ($data['url'] && $data['name']) {
                     $apikey = $this->generateUniqueKey($data['url']);
                     try {
-                        $this->app['db']->insert('frontends', array(
+                        $frontend = new Frontend();
+                        $frontend->importFromArray(array(
                             'base_url' => $data['url'],
                             'name' => $data['name'],
                             'apikey' => $apikey,
                         ));
+                        $this->app['db']->insert(
+                            'frontends', $frontend->transformInArray()
+                        );
                         return $this->app->redirect($this->app['url_generator']
                             ->generate('homepage'));
                     } catch(DBALException $e) {
@@ -196,8 +218,46 @@ class Web extends Controller
      * View frontend.
      */
     public function viewFrontend(Request $request, $id) {
-        // TODO.
-        return "";
+        $stmt = $this->app['db']->executeQuery(
+            'SELECT * FROM frontends WHERE id = ?',
+            array($id)
+        );
+        $frontend = new Frontend();
+        $urls = array();
+        try {
+            $sqlFront = $stmt->fetch();
+            if (!is_array($sqlFront)) {
+                throw new \Exception('Unknown frontend id');
+            } else {
+                $frontend->importFromArray($sqlFront);
+            }
+            $stmt = $this->app['db']->executeQuery(
+                'SELECT id, frontend_id, url
+                 FROM urls WHERE frontend_id = ? ORDER BY id',
+                array($frontend->getId())
+            );
+
+            $urls = $stmt->fetchAll(\PDO::FETCH_CLASS, get_class(new url()));
+            $frontend->setUrls($urls);
+
+            $stmt = $this->app['db']->executeQuery(
+                'SELECT c.id, c.user_name, c.user_email, c.url_id, c.date, c.comment FROM comments c, urls u
+                 WHERE  u.frontend_id = ? AND u.id = c.url_id',
+                array($frontend->getId())
+            );
+            $comments = $stmt->fetchAll(\PDO::FETCH_CLASS, get_class(new Comment));
+
+            $frontend->addCommentsToUrls($comments);
+
+        } catch (DBAL\Exception $e) {
+            $this->app['session']->getFlashBag()->add('error', $e->getMessage());
+        } catch (\Exception $e) {
+            $this->app['session']->getFlashBag()->add('error', $e->getMessage());
+        }
+
+        return $this->app['twig']->render('frontend-view.html.twig', array(
+            'frontend' => $frontend,
+        ));
     }
 
     /**
@@ -229,6 +289,9 @@ class Web extends Controller
         return $count ? true : false;
     }
 
+    /**
+     * Create a apikey
+     */
     protected function generateUniqueKey($url) {
         return base64_encode($url . mt_rand(55, 5555));
     }

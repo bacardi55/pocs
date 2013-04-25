@@ -7,6 +7,8 @@ class Url implements \JsonSerializable
     protected $url;
     protected $frontend_id;
 
+    protected $comments;
+
     public function getId()
     {
         return $this->id;
@@ -22,6 +24,20 @@ class Url implements \JsonSerializable
         return $this->frontend_id;
     }
 
+    public function setComments($comments)
+    {
+        $this->comments = $comments;
+    }
+
+    public function getComments()
+    {
+        return $this->comments;
+    }
+
+    public function addComment(Comment $comment)
+    {
+        $this->comments[] = $comment;
+    }
 
     public function importFromArray(Array $url)
     {

@@ -6,8 +6,8 @@
     <ul>
         {% for frontend in frontends %}
             <li>
-                {{ frontend.name }}
-                (<a href="{{ frontend.base_url}}">{{ frontend.base_url }}</a>)
+                <a href="{{ path('view_frontend', { id: frontend.id }) }}">{{ frontend.name }}</a>
+                (<a href="{{ frontend.baseUrl}}">{{ frontend.baseUrl }}</a>)
                 <a href="{{ path('remove_frontend', {'id': frontend.id}) }}">
                     <i class="icon-trash"></i>
                 </a>
