@@ -42,10 +42,19 @@ class Web extends Controller
 
         $this->app->get('admin/frontend/{id}/remove', array($this, 'removeFrontend'))
             ->bind('remove_frontend');
+
+        $this->app->get('admin/frontend/{frontend}/url/{url}/remove',
+            array($this, 'removeUrl'))->bind('remove_url');
+
+        $this->app->get('admin/frontend/{frontend}/url/{url}/comment/{comment}/remove',
+            array($this, 'removeComment'))->bind('remove_comment');
     }
 
     /**
      * Before (checking if the app is installed).
+     *
+     * @param Symfony\Component\HttpFoundation\Request
+     *   The request.
      */
     public function before(Request $request)
     {
@@ -58,9 +67,10 @@ class Web extends Controller
     }
 
     /**
-     * Home function.
+     * Home function: Redirect to the index or to the login page.
      *
-     * Redirect to the index or to the login page.
+     * @return Symfony\Component\HttpFoundation\Response
+     *   A Response.
      */
     public function home()
     {
@@ -74,9 +84,10 @@ class Web extends Controller
     }
 
     /**
-     * Index page.
+     * Index page: Display all frontends.
      *
-     * Display all frontends.
+     * @return Symfony\Component\HttpFoundation\Response
+     *   A Response.
      */
     public function index()
     {
@@ -92,6 +103,12 @@ class Web extends Controller
 
     /**
      * Login page.
+     *
+     * @param Symfony\Component\HttpFoundation\Request
+     *   The request.
+     *
+     * @return Symfony\Component\HttpFoundation\Response
+     *   A Response.
      */
     public function login(Request $request)
     {
@@ -106,6 +123,12 @@ class Web extends Controller
 
     /**
      * Add a frontend.
+     *
+     * @param Symfony\Component\HttpFoundation\Request
+     *   The request.
+     *
+     * @return Symfony\Component\HttpFoundation\Response
+     *   A Response.
      */
     public function addFrontend(Request $request)
     {
@@ -144,6 +167,12 @@ class Web extends Controller
     }
     /**
      * Install.
+     *
+     * @param Symfony\Component\HttpFoundation\Request
+     *   The request.
+     *
+     * @return Symfony\Component\HttpFoundation\Response
+     *   A Response.
      */
     public function install(Request $request)
     {
@@ -216,6 +245,15 @@ class Web extends Controller
 
     /**
      * View frontend.
+     *
+     * @param Symfony\Component\HttpFoundation\Request
+     *   The request.
+     *
+     * @param int $id
+     *   The frontend Id.
+     *
+     * @return Symfony\Component\HttpFoundation\Response
+     *   A Response.
      */
     public function viewFrontend(Request $request, $id) {
         $stmt = $this->app['db']->executeQuery(
@@ -261,7 +299,16 @@ class Web extends Controller
     }
 
     /**
-     * Remove frontend.
+     * Remove a frontend.
+     *
+     * @param Symfony\Component\HttpFoundation\Request
+     *   The request.
+     *
+     * @param int $id
+     *   The frontend Id.
+     *
+     * @return Symfony\Component\HttpFoundation\Response
+     *   A Response.
      */
     public function removeFrontend(Request $request, $id) {
         try {
@@ -278,7 +325,68 @@ class Web extends Controller
     }
 
     /**
-     * Is installed.
+     * Remove a url.
+     *
+     * @param Symfony\Component\HttpFoundation\Request
+     *   The request.
+     *
+     * @param int $frontend
+     *   The frontend Id.
+     *
+     * @param int $url
+     *   The url Id.
+     *
+     * @return Symfony\Component\HttpFoundation\Response
+     *   A Response.
+     */
+    public function removeUrl(Request $request, $frontend, $url)
+    {
+        return $this->app->redirect($this->app['url_generator']
+            ->generate('view_frontend', array('id' => $frontend))
+        );
+    }
+
+    /**
+     * Remove a comment.
+     *
+     * @param Symfony\Component\HttpFoundation\Request
+     *   The request.
+     *
+     * @param int $frontend
+     *   The frontend Id.
+     *
+     * @param int $url
+     *   The url Id.
+     *
+     * @param int $comment
+     *   The comment Id.
+     *
+     * @return Symfony\Component\HttpFoundation\Response
+     *   A Response.
+     */
+    public function removeComment(Request $request, $frontend, $url, $comment)
+    {
+        $deleted = $this->app['db']->delete(
+            'comments', array('id' => $comment, 'url_id' => $url)
+        );
+        if ($deleted) {
+            $this->app['session']->getFlashBag()
+                ->add('success', 'The url has been correctly deleted');
+        } else {
+            $this->app['session']->getFlashBag()
+                ->add('error', 'The url ha nots been deleted');
+        }
+
+        return $this->app->redirect($this->app['url_generator']
+            ->generate('view_frontend', array('id' => $frontend))
+        );
+    }
+
+    /**
+     * Return if the system is already installed.
+     *
+     * @return Boolean
+     *   if the system has been installed or not.
      */
     protected function isInstalled()
     {
@@ -289,6 +397,15 @@ class Web extends Controller
         return $count ? true : false;
     }
 
+    /**
+     * Generate a api key for a given url.
+     *
+     * @param String $url
+     *   The url that need an apikey.
+     *
+     * @return String
+     *   The apikey.
+     */
     /**
      * Create a apikey
      */

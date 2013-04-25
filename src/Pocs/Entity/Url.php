@@ -9,6 +9,7 @@ class Url implements \JsonSerializable
 
     protected $comments;
 
+    /* GET / SET */
     public function getId()
     {
         return $this->id;
@@ -34,6 +35,12 @@ class Url implements \JsonSerializable
         return $this->comments;
     }
 
+    /**
+     * Add a comment
+     *
+     * @param Comment $comment
+     *   A comment to add.
+     */
     public function addComment(Comment $comment)
     {
         $this->comments[] = $comment;

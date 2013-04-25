@@ -36,6 +36,12 @@ class Api extends Controller
 
     /**
      * Handle the POST Request.
+     *
+     * @param Symfony\Component\HttpFoundation\Request
+     *   The request.
+     *
+     * @return Symfony\Component\HttpFoundation\JsonResponse
+     *   A Jsonresponse.
      */
     public function add(Request $request)
     {
@@ -196,6 +202,12 @@ class Api extends Controller
 
     /**
      * Valid the add comment query.
+     *
+     * @param Symfony\Component\HttpFoundation\Request
+     *   The request.
+     *
+     * @return Boolean
+     *   If the request is valid.
      */
     protected function isValidCommentRequest(Request $request) {
         if (!$request->get('key') || !$request->get('newComment')
@@ -204,6 +216,17 @@ class Api extends Controller
         }
         return true;
     }
+
+    /**
+     * Get a frontend by its Apikey.
+     *
+     * @param String $key
+     *   The api key
+     *
+     * @return mixed
+     *   False if the key doesn't match a frontend.
+     *   An array if one is found
+     */
     protected function getFrontendByApikey($key) {
         $stmt = $this->app['db']->executeQuery(
             'SELECT id, base_url, name, apikey FROM frontends

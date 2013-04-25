@@ -34,11 +34,15 @@ class Frontend implements \JsonSerializable
 
     public function setUrls(Array $urls)
     {
-        if ($urls[0] instanceof Url) {
-            $this->urls = $urls;
-        }
+        $this->urls = $urls;
     }
 
+    /**
+     * Add comments in the matching url.
+     *
+     * @param Array $comments
+     *   An array of comments.
+     */
     public function addCommentsToUrls(Array $comments)
     {
         for ($i = 0, $nb = count($comments); $i < $nb; ++$i) {
@@ -48,6 +52,12 @@ class Frontend implements \JsonSerializable
 
     }
 
+    /**
+     * Return the Url object corresponding to the given $id.
+     *
+     * @param int $id
+     *   The url id.
+     */
     public function getUrlById($id)
     {
         for ($i = 0, $nb = count($this->urls); $i < $nb; ++$i) {

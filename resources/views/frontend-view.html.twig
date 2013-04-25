@@ -12,6 +12,9 @@
               {% for comment in url.Comments %}
                 <li>
                   - {{ comment.userName }}: {{ comment.comment }}
+                  <a href="{{ path('remove_comment', {'frontend': frontend.id, 'url': url.id, 'comment': comment.id}) }}">
+                      <i class="icon-trash"></i>
+                  </a>
                 </li>
               {% else %}
               {% endfor %}
