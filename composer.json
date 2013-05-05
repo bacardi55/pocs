@@ -1,13 +1,15 @@
 {
-    "name"        : "POCS",
+    "name"        : "bacardi55/pocs",
+    "homepage"    : "https://github.com/bacardi55/pocs"
     "type"        : "library",
     "description" : "Backend php for Jocs",
     "keywords"    : ["php"],
     "license"     : "MIT",
     "authors"     : [
         {
-            "name"  : "Raphaël Khaïat",
-            "email" : "admin@bacardi55.org"
+            "name"     : "Raphaël Khaïat",
+            "email"    : "admin@bacardi55.org",
+            "homepage" : "http://bacardi55.org"
         }
     ],
     "require": {
