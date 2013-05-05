@@ -69,8 +69,15 @@ class Frontend implements \JsonSerializable
 
     public function importFromArray(Array $frontend)
     {
-        $this->id = $frontend['id'];
-        $this->base_url = $frontend['base_url'];
+        if (array_key_exists('id', $frontend)) {
+            $this->id = array_key_exists('id', $frontend) ? $frontend['id'] : '';
+            $this->base_url = $frontend['base_url'];
+        }
+        else {
+            $this->id = '';
+            $this->base_url = $this->removeSchemeFromUrl($frontend['base_url']);
+        }
+
         $this->name = $frontend['name'];
         $this->apikey = $frontend['apikey'];
     }
@@ -89,4 +96,18 @@ class Frontend implements \JsonSerializable
     {
         return $this->transformInArray();
     }
+
+    public function removeSchemeFromUrl($url)
+    {
+        $parsed = parse_url($url);
+echo '<pre>';print_r($parsed);echo '</pre>';
+        if (!array_key_exists('host', $parsed)) {
+            throw new \Exception('Incorrect Url (no host found)');
+        }
+
+        return $parsed['host']
+            . (array_key_exists('port', $parsed) ? ':' . $parsed['port'] : '')
+            . (array_key_exists('path', $parsed) ? $parsed['path'] : '');
+    }
 }
+

@@ -153,7 +153,7 @@ class Web extends Controller
                         );
                         return $this->app->redirect($this->app['url_generator']
                             ->generate('homepage'));
-                    } catch(DBALException $e) {
+                    } catch(\Exception $e) {
                         $this->app['session']->getFlashBag()
                             ->add('error', $e->getMessage());
                     }
@@ -312,10 +312,26 @@ class Web extends Controller
      */
     public function removeFrontend(Request $request, $id) {
         try {
+            $stmt = $this->app['db']->executeQuery(
+                'SELECT id FROM urls WHERE frontend_id = ?',
+                array($id)
+            );
+            $urls = $stmt->fetchAll(\PDO::FETCH_COLUMN, 0);
+            if (count($urls)) {
+                echo 'in';
+                $stmt2 = $this->app['db']->executeQuery(
+                    'DELETE FROM comments WHERE url_id IN (?)',
+                    array($urls),
+                    array(\Doctrine\DBAL\Connection::PARAM_INT_ARRAY)
+                );
+            }
+            $deletedUrls = $this->app['db']->delete(
+                'urls', array('frontend_id' => $id)
+            );
             $this->app['db']->delete('frontends', array('id' => $id));
             $this->app['session']->getFlashBag()
                 ->add('success', 'This frontend has been removed');
-        } catch(DBALException $e) {
+        } catch(\Exception $e) {
             $this->app['session']->getFlashBag()->add('error', $e->getMessage());
         }
 
