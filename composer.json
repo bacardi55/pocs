@@ -1,6 +1,6 @@
 {
     "name"        : "bacardi55/pocs",
-    "homepage"    : "https://github.com/bacardi55/pocs"
+    "homepage"    : "https://github.com/bacardi55/pocs",
     "type"        : "library",
     "description" : "Backend php for Jocs",
     "keywords"    : ["php"],
