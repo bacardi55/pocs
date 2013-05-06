@@ -100,14 +100,15 @@ class Frontend implements \JsonSerializable
     public function removeSchemeFromUrl($url)
     {
         $parsed = parse_url($url);
-echo '<pre>';print_r($parsed);echo '</pre>';
+
         if (!array_key_exists('host', $parsed)) {
             throw new \Exception('Incorrect Url (no host found)');
         }
 
         return $parsed['host']
             . (array_key_exists('port', $parsed) ? ':' . $parsed['port'] : '')
-            . (array_key_exists('path', $parsed) ? $parsed['path'] : '');
+            . ((array_key_exists('path', $parsed) && $parsed['path'] != '/') ?
+              $parsed['path'] : '');
     }
 }
 

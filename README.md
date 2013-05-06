@@ -17,6 +17,9 @@ written in php with the micro framework silex
     php console doctrine:database:create # Only if you didn't create the db yourself
     php console doctrine:schema:load
 
+    # Dump assetics:
+    php console assetic:dump
+
 
 then go to /install to create the first admin.
 

@@ -128,11 +128,15 @@ if (isset($app['assetic.enabled']) && $app['assetic.enabled']) {
 
 }
 
-// Dependency of webprofiler.
-$app->register(new Provider\ServiceControllerServiceProvider());
-$app->register($p = new Provider\WebProfilerServiceProvider(), array(
-    'profiler.cache_dir' => __DIR__.'/../resources/cache/profiler',
-));
-$app->mount('/_profiler', $p);
+if ($app['debug']) {
+    // Dependency of webprofiler.
+    $app->register(new Provider\ServiceControllerServiceProvider());
+
+    $app->register($p = new Provider\WebProfilerServiceProvider(), array(
+        'profiler.cache_dir' => __DIR__.'/../resources/cache/profiler',
+    ));
+
+    $app->mount('/_profiler', $p);
+}
 
 return $app;
