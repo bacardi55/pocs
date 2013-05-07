@@ -154,7 +154,7 @@ class Api extends Controller
                 for ($i = 0, $nb = count($comments); $i < $nb; ++$i) {
                     $data['comments'][] = array(
                         'id' => $comments[$i]['id'],
-                        'comment' => $comments[$i]['comment'],
+                        'comment' => nl2br($comments[$i]['comment']),
                         'user' => $comments[$i]['user_name'],
                         'date' => $comments[$i]['date'],
                         'gravatar' => 'http://www.gravatar.com/avatar/'
